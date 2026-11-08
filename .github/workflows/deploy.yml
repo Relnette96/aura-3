@@ -1,0 +1,39 @@
+# Déploie Aura Battlers RPG sur GitHub Pages à chaque envoi sur la branche main.
+# Emplacement dans le dépôt : .github/workflows/deploy.yml
+name: Déployer sur GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permet aussi de lancer le déploiement à la main depuis l'onglet Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Récupérer les fichiers
+        uses: actions/checkout@v4
+
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Préparer le site (racine du dépôt)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Publier
+        id: deployment
+        uses: actions/deploy-pages@v4
